@@ -81,10 +81,12 @@ spec:
       volumes:
         - name: login-cred
           secret:
-            name: {{ DEPLOYMENT_NAME }}-login-cred
+            secretName: {{ DEPLOYMENT_NAME }}-login-cred
+            defaultMode: 256
         - name: nginx
           configMap:
             name: {{ DEPLOYMENT_NAME }}-nginx
         - name: bucket-cred
           secret:
-            name: {{ DEPLOYMENT_NAME }}-bucket-cred
+            secretName: {{ DEPLOYMENT_NAME }}-bucket-cred
+            defaultMode: 256
