@@ -1,0 +1,47 @@
+language: python
+cache:
+  directories:
+  - "/opt/sharedlibs"
+env:
+  global:
+  - CLOUDSDK_CORE_DISABLE_PROMPTS=1
+  - CLUSTER_NAME=standard-cluster-1
+  - CLUSTER_PROJECT=gcp-home-dev
+  - CLUSTER_ZONE=europe-west3-a
+  - DEPLOYMENT_NAME=img_slider
+  - IMAGE_NGINX=gcr.io/gcp-home-dev/salt-nginx:38653e4be94ea748251de9c5c86a32106278e481
+  - IMAGE_SLIDER=gcr.io/gcp-home-dev/flask-slider:069a7a7e9348b68c4564afdf240377e0fbd71989
+  - MAX_REPLICAS=1
+  - MIN_REPLICAS=1
+  - NAMESPACE=img_slider
+  - USERNAME=saltdeployer
+  - PASSWORD=
+  - SALT_API_HOST=salt.th0r.lan
+  - secure: NI8vGrzHw77nkSXv/tfMwey3Tm6X4gKWLGztwtLQQ7oeDigtYiZHkbVN0ETxNkerm5Dg+FkJz+dkm9jOcdri+N6c1982IcjrPQQLBBNMzZDRnA/QiwuDeQ1Fhq/Z/2UKHWKKG7DG4bGGblf2T1jopnFPG4mCDYqQIQSuMDvO0jmdKA3cjm05uhRGytohmlLueDoPPW1tDD7mu8Apk36CVb7BDqDBaQFlnLv7+Vldxd499CcaOFF5/ZrpC9/XVa42bv31VuhiDhdTcE3ARvOIHuaTH7S0BYXTXwOz0Fzhh7OKqUWSnCz0MOEQppFfjXx1F8kesA1K5Hau6EP/23ueQxxDgHIWy/4L1YeGuroDbetDL2iBgfcV+KaoDbpCYqOwPQjeGczwP1pU+xGD0GitIiJc5t+bJLxF7Klvnjz1SkAOTN48LY0KJgheM7SlmTthqPdDQnLIFCKo6dW7KTzyHFgJrAHh2q7+1jonjxYnnUndA4O3kA266pUb2u/kDUqOCaElgyc6rTHvLSR+AddBauz/1JkfU2OvOJTW8VR7NIL1kS5tjmtD0dMNvzkxCik2o2c82w5Zk/mkZ8Yn5J32on43bXu6nFe8g3QY2uR6UuGGX8g09aKpQ06R5Lvn1ks8z1X78dXe5m7fjQ/AbQxKfulFjj9hGVIvfyTudzURGqQ=
+  - secure: I2fl7d3kcB2dGEaqGXIAU16AhEnJbniM8ll8yzG2EsfYresrL6RgfJ4gaxd+a3cevWkprxUtPeGDacq741DiAwBaj4QZbpCBHW+cNa46wtvFV8PhKqJkTP1dvWGxy0ccLZtqf8t9e6YPPYe13mGTkc3hI1un6GrEKWG/XNTIqK3WHXpIH5LYkZyhigbWChuKgjDaR++lRqjqlLUlZeEuaaVw8EQW4CqNvSR0f4IvckYJDZF/SiFfXsd2KhgjIozXRzRCC6o9gPiA+yjLdiIU/HDbnzWlwEGQ+/2ZYtzKtDe1NHTvKJNWnjcigr/IZxPteegpBpKIN7AuyFJkRSt/WvwU/AIjCM7nyp1aj3GCHFAZsUBOlxA7au8vHCTJBaH97yyEUrdUT7OCqlVt4sr0MaF98afyFp0D56YvcBq4xHkLW9g8xJ3LmRHAQpl4JZcgx31Go+aBf0wRZaeVoeBca9KnDJI819bHJVbN2uIqtHScgbWUlG+skXicWriEskp4mOWZ1pZFLtbvWlYnUywLL+fO3UqCUG3kEYXwAMOtjw9TRe6M4fUsWoNOnPeojKUzfOnfsREoKhcw11vJXXN0cru/CbwN49ZS2Bdn0k5jnsRoGLO0sbDphoEUs6GJ8U/PgNh1re40LqhhLovX7ZSCXpPcgD+kzjOBIaCzBOD2hjk=
+before_install:
+- openssl aes-256-cbc -K $encrypted_445d4b2a7a9a_key -iv $encrypted_445d4b2a7a9a_iv
+  -in credentials.tar.gz.enc -out ~\/secrets/credentials.tar.gz -d
+- tar -xzf credentials.tar.gz
+- sudo apt-get install apt-transport-https git
+- export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)"
+- echo "deb https://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | sudo tee
+  -a /etc/apt/sources.list.d/google-cloud-sdk.list
+- sudo apt-get update
+- mkdir -p /opt/sharedlibs/
+- "/bin/bash -c 'if ls /opt/sharedlibs/.git ; then git -C /opt/sharedlibs/ pull; else
+  git clone https://github.com/Cookiiiies/sharedlibs.git /opt/sharedlibs/; fi'"
+install:
+- pip install -r pip/requirements.txt
+- sudo apt-get install google-cloud-sdk kubectl
+- kubectl version --client
+- gcloud --version
+- mkdir -p ${HOME}/k8s_descriptions
+- gcloud auth activate-service-account --key-file image-slider-deployment.priv
+- gcloud container clusters get-credentials ${CLUSTER_NAME} --zone ${CLUSTER_ZONE}
+  --project ${CLUSTER_PROJECT}
+before_script:
+- export BUCKET_CREDENTIAL=$(base64 -w0 image-slider.priv)
+script:
+- python2 /opt/sharedlibs/python/render_k8s.py
+- python2 /opt/sharedlibs/python/deploy_k8s.py

@@ -1,0 +1,30 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ DEPLOYMENT_NAME }}-nginx
+  namespace: {{ NAMESPACE }}
+data:
+  salt-proxy.conf: |-
+    server {
+      listen 80 default_server;
+      listen [::]:80 default_server;
+      server_name {{ FQDN }};
+
+      charset UTF-8;
+
+      location /health {
+        access_log off;
+        return 200 "healthy\n";
+      }
+
+      location / {
+        include uwsgi_params;
+        uwsgi_pass 127.0.0.1:9090;
+      }
+
+      location ^~ /static/  {
+        include uwsgi_params;
+        uwsgi_pass 127.0.0.1:9090;
+      }
+
+    }

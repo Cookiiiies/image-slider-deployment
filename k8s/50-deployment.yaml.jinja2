@@ -1,0 +1,90 @@
+kind: "Deployment"
+apiVersion: "extensions/v1beta1"
+metadata:
+  name: {{ DEPLOYMENT_NAME }}-slider
+  namespace: {{ NAMESPACE }}
+  labels:
+    name: {{ DEPLOYMENT_NAME }}
+spec:
+  replicas: {{ MIN_REPLICAS }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 2
+  selector:
+    matchLabels:
+      name: {{ DEPLOYMENT_NAME }}
+  template:
+    metadata:
+      name: {{ DEPLOYMENT_NAME }}
+      labels:
+        name: {{ DEPLOYMENT_NAME }}
+    spec:
+      containers:
+        - name: proxy
+          image: {{ IMAGE_NGINX }}
+          imagePullPolicy: Always
+          env:
+            - name: SALT_API_HOST
+              value: {{ FQDN }}
+          readinessProbe:
+            httpGet:
+              scheme: HTTP
+              path: /health
+              port: 80
+          livenessProbe:
+            httpGet:
+              scheme: HTTP
+              path: /health
+              port: 80
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - mountPath: /etc/nginx/conf.d
+              name: nginx
+
+        - name: image-slider
+          image: {{ IMAGE_SLIDER }}
+          imagePullPolicy: Always
+          env:
+            - name: USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: login-cred
+                  key: username
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: login-cred
+                  key: password
+            - name: CREDENTIALS_FILE
+              value: "/secrets/google/bucket.json"
+            - name: BUCKET_ID
+              value: {{ BUCKET_ID }}
+          readinessProbe:
+            httpGet:
+              scheme: TCP
+              path: /health
+              port: 9090
+          livenessProbe:
+            httpGet:
+              scheme: HTTP
+              path: /health
+              port: 9090
+          ports:
+            - containerPort: 9090
+          volumeMounts:
+            - mountPath: /secrets/google/
+              name: bucket-cred
+
+      volumes:
+        - name: login-cred
+          secret:
+            name: {{ DEPLOYMENT_NAME }}-login-cred
+        - name: nginx
+          configMap:
+            name: {{ DEPLOYMENT_NAME }}-nginx
+        - name: bucket-cred
+          secret:
+            name: {{ DEPLOYMENT_NAME }}-bucket-cred
