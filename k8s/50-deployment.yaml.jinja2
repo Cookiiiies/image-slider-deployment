@@ -32,14 +32,15 @@ spec:
             httpGet:
               scheme: HTTP
               path: /health
-              port: 80
+              port: nginx
           livenessProbe:
             httpGet:
               scheme: HTTP
               path: /health
-              port: 80
+              port: nginx
           ports:
             - containerPort: 80
+              name: nginx
           volumeMounts:
             - mountPath: /etc/nginx/conf.d
               name: nginx
@@ -63,17 +64,16 @@ spec:
             - name: BUCKET_ID
               value: {{ BUCKET_ID }}
           readinessProbe:
-            httpGet:
+            tcpSocket:
               scheme: TCP
-              path: /health
-              port: 9090
+              port: uwsgi
           livenessProbe:
-            httpGet:
-              scheme: HTTP
-              path: /health
-              port: 9090
+            tcpSocket:
+              scheme: TCP
+              port: uwsgi
           ports:
             - containerPort: 9090
+              name: uwsgi
           volumeMounts:
             - mountPath: /secrets/google/
               name: bucket-cred
