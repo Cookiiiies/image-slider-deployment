@@ -10,7 +10,7 @@ env:
   - CLUSTER_ZONE=europe-west3-a
   - DEPLOYMENT_NAME=img-slider
   - IMAGE_NGINX=gcr.io/gcp-home-dev/salt-nginx:38653e4be94ea748251de9c5c86a32106278e481
-  - IMAGE_SLIDER=gcr.io/gcp-home-dev/flask-slider:069a7a7e9348b68c4564afdf240377e0fbd71989
+  - IMAGE_SLIDER=gcr.io/gcp-home-dev/flask-slider:1ef5880305b74e37b5cdf14720c29d4f87904b48
   - MAX_REPLICAS=1
   - MIN_REPLICAS=1
   - NAMESPACE=img-slider
