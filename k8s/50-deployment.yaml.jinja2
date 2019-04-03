@@ -25,9 +25,6 @@ spec:
         - name: proxy
           image: {{ IMAGE_NGINX }}
           imagePullPolicy: Always
-          env:
-            - name: SALT_API_HOST
-              value: {{ FQDN }}
           readinessProbe:
             httpGet:
               scheme: HTTP
