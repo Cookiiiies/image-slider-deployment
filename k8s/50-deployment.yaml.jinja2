@@ -52,12 +52,12 @@ spec:
             - name: USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: login-cred
+                  name: {{ DEPLOYMENT_NAME }}-login-cred
                   key: username
             - name: PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: login-cred
+                  name: {{ DEPLOYMENT_NAME }}-login-cred
                   key: password
             - name: CREDENTIALS_FILE
               value: "/secrets/google/bucket.json"
@@ -77,10 +77,6 @@ spec:
               name: bucket-cred
 
       volumes:
-        - name: login-cred
-          secret:
-            secretName: {{ DEPLOYMENT_NAME }}-login-cred
-            defaultMode: 256
         - name: nginx
           configMap:
             name: {{ DEPLOYMENT_NAME }}-nginx
