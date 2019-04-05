@@ -62,10 +62,10 @@ spec:
               value: {{ BUCKET_ID }}
           readinessProbe:
             tcpSocket:
-              port: uwsgi
+              port: 9090
           livenessProbe:
             tcpSocket:
-              port: uwsgi
+              port: 9090
           ports:
             - containerPort: 9090
               hostPort: 9090
