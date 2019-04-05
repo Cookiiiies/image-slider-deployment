@@ -61,14 +61,18 @@ spec:
             - name: BUCKET_ID
               value: {{ BUCKET_ID }}
           readinessProbe:
-            tcpSocket:
-              port: 9090
+            exec:
+              command:
+                - curl
+                - 127.0.0.1:1717
             initialDelaySeconds: 10
             periodSeconds: 10
             timeoutSeconds: 2
           livenessProbe:
-            tcpSocket:
-              port: 9090
+            exec:
+              command:
+                - curl
+                - 127.0.0.1:1717
             initialDelaySeconds: 10
             periodSeconds: 10
             timeoutSeconds: 2
