@@ -63,9 +63,15 @@ spec:
           readinessProbe:
             tcpSocket:
               port: 9090
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 2
           livenessProbe:
             tcpSocket:
               port: 9090
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 2
           ports:
             - containerPort: 9090
               hostPort: 9090
