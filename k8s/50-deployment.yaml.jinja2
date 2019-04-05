@@ -68,6 +68,7 @@ spec:
               port: uwsgi
           ports:
             - containerPort: 9090
+              hostPort: 9090
               name: uwsgi
           volumeMounts:
             - mountPath: /secrets/google/

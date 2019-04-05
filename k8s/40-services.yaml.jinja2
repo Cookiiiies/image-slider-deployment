@@ -20,9 +20,18 @@ metadata:
   name: {{ DEPLOYMENT_NAME }}-ingress
   namespace: {{ NAMESPACE }}
   annotations:
-    kubernetes.io/ingress.global-static-ip-name: "{{ DEPLOYMENT_NAME }}-ip"
+    kubernetes.io/ingress.global-static-ip-name: "{{ IMAGE_SLIDER_FQDN | replace(".", "-") | lower }}"
 spec:
+  tls:
+    - secretName: {{ DEPLOYMENT_NAME }}-tls
   backend:
     serviceName: {{ DEPLOYMENT_NAME }}-web
     servicePort: {{ DEPLOYMENT_NAME }}-80
-
+  rules:
+  - host: {{ IMAGE_SLIDER_FQDN }}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: {{ DEPLOYMENT_NAME }}-web
+          servicePort: {{ DEPLOYMENT_NAME }}-80
