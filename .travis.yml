@@ -49,4 +49,4 @@ install:
 before_script:
 - export BUCKET_CREDENTIAL=$(base64 -w0 image-slider.priv)
 script:
-- python2 /opt/sharedlibs/python/deploy_k8s.py
+- python3 /opt/sharedlibs/python/deploy_k8s.py
