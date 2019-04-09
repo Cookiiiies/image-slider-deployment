@@ -4,7 +4,7 @@ metadata:
   name: {{ DEPLOYMENT_NAME }}-slider
   namespace: {{ NAMESPACE }}
   labels:
-    name: {{ DEPLOYMENT_NAME }}
+    name: {{ DEPLOYMENT_NAME }}-slider
 spec:
   replicas: {{ MIN_REPLICAS }}
   strategy:
@@ -14,12 +14,12 @@ spec:
       maxSurge: 2
   selector:
     matchLabels:
-      name: {{ DEPLOYMENT_NAME }}
+      name: {{ DEPLOYMENT_NAME }}-slider
   template:
     metadata:
-      name: {{ DEPLOYMENT_NAME }}
+      name: {{ DEPLOYMENT_NAME }}-slider
       labels:
-        name: {{ DEPLOYMENT_NAME }}
+        name: {{ DEPLOYMENT_NAME }}-slider
     spec:
       containers:
         - name: proxy
